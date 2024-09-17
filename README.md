@@ -67,18 +67,4 @@ pip3 install -r requirements.txt
 streamlit run app_ollama.py
 ```
 
-### 👉👉👉如有问题请联系我的徽信 stoeng
-### 👉👉👉我的哔哩哔哩频道 https://space.bilibili.com/3493277319825652
-### 👉👉👉我的YouTube频道 https://www.youtube.com/@AIsuperdomain
 
-
-## Prompting Strategy
-
-[Prompting Strategy section remains unchanged]
-
-## Top Forks
-* Mult1: Using multiple AI providers to create o1-like reasoning chains ([GitHub Repository](https://github.com/tcsenpai/multi1))
-
-## Credits
-
-This app was originally developed by [Benjamin Klieger](https://x.com/benjaminklieger) and has been extended by the open-source community to support multiple LLM backends.g1
