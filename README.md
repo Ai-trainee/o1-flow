@@ -86,6 +86,9 @@ pip3 install -r requirements.txt
 # Set up your .env file with OLLAMA_URL and OLLAMA_MODEL
 streamlit run o1_ollama.py
 ```
-### example
+### 例子
 ![img.png](examples/img.png)
-
+#### 3307是质数吗？（答案：是的）
+![img.png](examples/img1.png)
+### 其他例子在这：文章介绍
+https://mp.weixin.qq.com/s/RnDBwEHlGWEo01YROsHvmw
