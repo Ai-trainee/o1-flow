@@ -14,9 +14,6 @@ o1 demonstrates the potential of prompting alone to overcome straightforward LLM
 
 The original implementation uses Llama-3.1 70b hosted on Groq to create reasoning chains.
 
-### OpenAI GPT-4o
-
-This version supports OpenAI's GPT-4o model, allowing users to leverage OpenAI's advanced language model for reasoning chains.
 
 ### Ollama Local Models
 
@@ -39,21 +36,44 @@ The reasoning ability of the LLM is therefore improved through combining Chain-o
 
 ## Quickstart
 
-### For Groq (original version)
+To use the Streamlit UI, follow these instructions:
 
-[Quickstart instructions for Groq remain unchanged]
-
-### For OpenAI GPT-4o
-
-To use the Streamlit UI with OpenAI's GPT-4o, follow these instructions:
-
-```bash
+~~~
 python3 -m venv venv
+~~~
+
+~~~
 source venv/bin/activate
+~~~
+
+~~~
 pip3 install -r requirements.txt
-export OPENAI_API_KEY=your_api_key_here
-streamlit run app_openai.py
-```
+~~~
+
+~~~
+export GROQ_API_KEY=gsk...
+~~~
+
+~~~
+streamlit run o1-groq.py
+~~~
+
+---
+
+Alternatively, follow these additional instructions to use the Gradio UI:
+
+~~~
+cd gradio
+~~~
+
+~~~
+pip3 install -r requirements.txt
+~~~
+
+~~~
+python3 o1_groq.py
+~~~
+
 
 ### For Ollama Local Models
 
@@ -64,7 +84,8 @@ python3 -m venv venv
 source venv/bin/activate
 pip3 install -r requirements.txt
 # Set up your .env file with OLLAMA_URL and OLLAMA_MODEL
-streamlit run app_ollama.py
+streamlit run o1_ollama.py
 ```
-
+### example
+![img.png](examples/img.png)
 
