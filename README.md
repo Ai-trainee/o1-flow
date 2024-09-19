@@ -92,3 +92,6 @@ streamlit run o1_ollama.py
 ![img.png](examples/img1.png)
 ### 其他例子在这：文章介绍
 https://mp.weixin.qq.com/s/RnDBwEHlGWEo01YROsHvmw
+
+### Forks
+https://github.com/bklieger-groq/g1
