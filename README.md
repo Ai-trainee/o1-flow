@@ -87,7 +87,7 @@ pip3 install -r requirements.txt
 streamlit run o1_ollama.py
 ```
 ### 例子
-![img.png](examples/img.png)
+
 #### 3307是质数吗？（答案：是的）
 ![img.png](examples/img1.png)
 ### 其他例子在这：文章介绍
