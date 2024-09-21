@@ -150,7 +150,8 @@ Watch the step-by-step guide for setting up and using **o1**:
   Your browser does not support the video tag.
 </video>
 
----
+### 其他例子在这：文章介绍
+https://mp.weixin.qq.com/s/RnDBwEHlGWEo01YROsHvmw
 
 ## **Forks**
 
