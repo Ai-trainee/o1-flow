@@ -1,31 +1,49 @@
+# File path: g1_app_optimized_confirm.py
 import streamlit as st
 import groq
 import os
 import json
 import time
+from dotenv import load_dotenv
 
+# Load environment variables
+load_dotenv()
+
+# Centralized configuration
+CONFIG = {
+    'GROQ_MODEL': os.getenv('GROQ_MODEL', 'llama-3.1-70b-versatile'),
+    'DEFAULT_TEMPERATURE': float(os.getenv('DEFAULT_TEMPERATURE', 0.2)),
+    'DEFAULT_MAX_TOKENS': int(os.getenv('DEFAULT_MAX_TOKENS', 300))
+}
+
+# Groq client
 client = groq.Groq()
 
-def make_api_call(messages, max_tokens, is_final_answer=False):
+# Add caching to avoid redundant API calls
+@st.cache_data
+def make_api_call(messages, max_tokens, temperature, is_final_answer=False):
     for attempt in range(3):
         try:
             response = client.chat.completions.create(
-                model="llama-3.1-70b-versatile",
+                model=CONFIG['GROQ_MODEL'],
                 messages=messages,
                 max_tokens=max_tokens,
-                temperature=0.2,
+                temperature=temperature,
                 response_format={"type": "json_object"}
             )
             return json.loads(response.choices[0].message.content)
         except Exception as e:
             if attempt == 2:
-                if is_final_answer:
-                    return {"title": "Error", "content": f"Failed to generate final answer after 3 attempts. Error: {str(e)}"}
-                else:
-                    return {"title": "Error", "content": f"Failed to generate step after 3 attempts. Error: {str(e)}", "next_action": "final_answer"}
-            time.sleep(1)  # Wait for 1 second before retrying
+                return {
+                    "title": "Error",
+                    "content": f"Failed to generate final answer after 3 attempts. Error: {str(e)}" if is_final_answer
+                    else f"Failed to generate step after 3 attempts. Error: {str(e)}",
+                    "next_action": "final_answer" if not is_final_answer else None
+                }
+            time.sleep(1)
 
-def generate_response(prompt):
+# Generate the reasoning response in steps
+def generate_response(prompt, max_tokens, temperature):
     messages = [
         {"role": "system", "content": """You are an advanced AI reasoning assistant tasked with delivering a comprehensive analysis of a specific problem or question.  Your goal is to outline your reasoning process in a structured and transparent manner, with each step reflecting a thorough examination of the issue at hand, culminating in a well-reasoned conclusion.
 
@@ -64,84 +82,116 @@ Please return the results in the following JSON format:
 "content": "To approach this problem effectively, I'll first break down the given information into key components.  This involves identifying... [detailed explanation]...  By structuring the problem in this way, we can systematically address each aspect.",
 "next_action": "continue"
 }
-```
-"""},
+```"""},
         {"role": "user", "content": prompt},
-        {"role": "assistant", "content": "Thank you! I will now think step by step following my instructions, starting at the beginning after decomposing the problem."}
+        {"role": "assistant", "content": "Thank you! I will now think step by step..."}
     ]
-    
+
     steps = []
     step_count = 1
     total_thinking_time = 0
-    
+
     while True:
         start_time = time.time()
-        step_data = make_api_call(messages, 300)
-        end_time = time.time()
-        thinking_time = end_time - start_time
+        step_data = make_api_call(messages, max_tokens, temperature)
+        thinking_time = time.time() - start_time
         total_thinking_time += thinking_time
-        
+
         steps.append((f"Step {step_count}: {step_data['title']}", step_data['content'], thinking_time))
-        
         messages.append({"role": "assistant", "content": json.dumps(step_data)})
-        
+
         if step_data['next_action'] == 'final_answer':
             break
-        
         step_count += 1
 
-        # Yield after each step for Streamlit to update
-        yield steps, None  # We're not yielding the total time until the end
-
-    # Generate final answer
-    messages.append({"role": "user", "content": "Please provide the final answer based on your reasoning above."})
-    
-    start_time = time.time()
-    final_data = make_api_call(messages, 200, is_final_answer=True)
-    end_time = time.time()
-    thinking_time = end_time - start_time
-    total_thinking_time += thinking_time
-    
+    # Final answer step
+    final_data = make_api_call(messages, 200, temperature, is_final_answer=True)
     steps.append(("Final Answer", final_data['content'], thinking_time))
 
-    yield steps, total_thinking_time
+    return steps, total_thinking_time
 
+# Main Streamlit app
 def main():
     st.set_page_config(page_title="g1 prototype", page_icon="🧠", layout="wide")
-    
+
+    # Sidebar settings
+    with st.sidebar:
+        st.title("Settings")
+        st.markdown("Adjust the parameters below:")
+        temperature = st.slider('Temperature', min_value=0.0, max_value=1.0, value=CONFIG['DEFAULT_TEMPERATURE'], key='temperature_slider')
+        max_tokens = st.number_input('Max Tokens', min_value=50, max_value=20000, value=CONFIG['DEFAULT_MAX_TOKENS'], key='max_tokens_input')
+        st.markdown("---")
+        st.markdown("**Current Configuration**")
+        st.markdown(f"**Model**: `{CONFIG['GROQ_MODEL']}`")
+        st.markdown(f"**Temperature**: `{temperature}`")
+        st.markdown(f"**Max Tokens**: `{max_tokens}`")
+
     st.title("g1: Using Llama-3.1 70b on Groq to create o1-like reasoning chains")
-    
+
+    # Custom CSS for improved UI aesthetics
     st.markdown("""
-    This is an early prototype of using prompting to create o1-like reasoning chains to improve output accuracy. It is not perfect and accuracy has yet to be formally evaluated. It is powered by Groq so that the reasoning step is fast!
-                
+    <style>
+    .stTextInput > div > label {
+        font-size: 20px;
+        color: #1f77b4;
+    }
+    .stButton > button {
+        background-color: #4CAF50;
+        color: white;
+        padding: 12px 24px;
+        font-size: 16px;
+        border: none;
+        cursor: pointer;
+    }
+    .stButton > button:hover {
+        background-color: #45a049;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+    st.markdown("""
+    This is an early prototype of using prompting to create o1-like reasoning chains to improve output accuracy. 
+    It is not perfect, and accuracy has yet to be formally evaluated. 
+    It is powered by Groq to ensure fast reasoning steps!
+
     Forked from [bklieger-groq](https://github.com/bklieger-groq)
     Open source [repository here](https://github.com/Ai-trainee/o1-flow)
     """)
-    
-    # Text input for user query
+
+    # User query input
     user_query = st.text_input("Enter your query:", placeholder="e.g., How many 'R's are in the word strawberry?")
-    
-    if user_query:
-        st.write("Generating response...")
-        
-        # Create empty elements to hold the generated text and total time
-        response_container = st.empty()
-        time_container = st.empty()
-        
-        # Generate and display the response
-        for steps, total_thinking_time in generate_response(user_query):
-            with response_container.container():
-                for i, (title, content, thinking_time) in enumerate(steps):
-                    if title.startswith("Final Answer"):
-                        st.markdown(f"### {title}")
-                        st.markdown(content.replace('\n', '<br>'), unsafe_allow_html=True)
+
+    # Add a button for confirmation of execution
+    if st.button("Run Query"):
+        if user_query.strip() == "":
+            st.warning("Please enter a valid query.")
+        else:
+            st.write("Generating response...")
+
+            # Add a loading spinner while generating responses
+            with st.spinner('Processing your query...'):
+                # Generate and display the response
+                steps, total_thinking_time = generate_response(user_query, max_tokens, temperature)
+
+                # Display response with progress
+                progress_bar = st.progress(0)
+                for idx, (title, content, thinking_time) in enumerate(steps):
+                    progress_bar.progress((idx + 1) / len(steps))
+                    if title == "Final Answer":
+                        st.subheader(f"{title}")
+                        st.write(content.replace('\n', '<br>'), unsafe_allow_html=True)
                     else:
-                        with st.expander(title, expanded=True):
-                            st.markdown(content.replace('\n', '<br>'), unsafe_allow_html=True)
-            
-            # Only show total time when it's available at the end
-            if total_thinking_time is not None:
-                time_container.markdown(f"**Total thinking time: {total_thinking_time:.2f} seconds**")
+                        with st.expander(f"{title} ({thinking_time:.2f}s)", expanded=True):
+                            st.write(content.replace('\n', '<br>'), unsafe_allow_html=True)
+
+            # Display total thinking time
+            st.success(f"**Total thinking time: {total_thinking_time:.2f} seconds**")
+
+            # Option to download results
+            if st.button("Download Results"):
+                json_data = json.dumps([{"title": title, "content": content} for title, content, _ in steps], indent=4)
+                st.download_button("Download", json_data, file_name="reasoning_results.json", mime="application/json")
+
 
 if __name__ == "__main__":
     main()
