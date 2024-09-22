@@ -3,10 +3,12 @@
 
 [Video Demo](https://github.com/user-attachments/assets/db2a221f-f8eb-48c3-b5a7-8399c6300243)
 
-## **Interface Updates**
+## **Interface Updates (streamlit run o1_groq.py)**
 ![img.png](docs/img5.png)
+**仅仅 ```streamlit run o1_groq.py```更新了最新界面**
 
 This is an early prototype of using prompting strategies to improve the LLM's reasoning capabilities through o1-like reasoning chains. This allows the LLM to "think" and solve logical problems that usually otherwise stump leading models. Unlike o1, all the reasoning tokens are shown, and the app uses an open source model.
+
 
 g1 is experimental and being open sourced to help inspire the open source community to develop new strategies to produce o1-like reasoning. This experiment helps show the power of prompting reasoning in visualized steps, not a comparison to or full replication of o1, which uses different techniques. OpenAI's o1 is instead trained with large-scale reinforcement learning to reason using Chain of Thought, achieving state-of-the-art performance on complex PhD-level problems. 
 
@@ -116,11 +118,6 @@ For those preferring **Gradio**, follow these steps:
 
 ---
 
-## **Performance & Limitations**
-
-Initial tests show that **o1** significantly improves performance on simple logical tasks, achieving **60-80%** accuracy on problems that typically stump LLMs. However, formal evaluation is still ongoing.
-
-> **Important**: o1 is not intended to be a perfect solution, but rather a tool to demonstrate the power of well-structured prompts in logical reasoning tasks.
 
 ### **Example: Is 3307 a Prime Number?**
 **Answer**: Yes.  
@@ -147,10 +144,4 @@ https://mp.weixin.qq.com/s/RnDBwEHlGWEo01YROsHvmw
 
 https://github.com/bklieger-groq/g1
 
----
 
-## **Conclusion**
-
-**o1** demonstrates how prompting strategies can significantly enhance the reasoning capabilities of LLMs. By breaking down problems into dynamic steps, encouraging alternative solutions, and providing an intuitive interface, **o1** offers a fresh approach to overcoming common LLM challenges.
-
-For developers and researchers interested in LLM reasoning improvement, **o1** provides a practical, accessible tool for experimentation.
